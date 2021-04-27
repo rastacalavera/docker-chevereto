@@ -72,21 +72,7 @@ Compatible with docker-compose v2 schemas.
 ```yaml
 ---
 version: "2.1"
-services:
-  chevereto:
-    image: ghcr.io/linuxserver/chevereto
-    container_name: chevereto
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=<TZ>
-    volumes:
-      - <path to config on host>:/config
-      - <path to data on host>:/data
-    ports:
-      - 80:80
-      - 443:443
-    restart: unless-stopped
+
 ```
 
 ### docker cli
@@ -96,11 +82,11 @@ docker run -d \
   --name=chevereto \
   -e PUID=1000 \
   -e PGID=1000 \
-  -e TZ=<TZ> \
-  -p 80:80 \
-  -p 443:443 \
-  -v <path to config on host>:/config \
-  -v <path to data on host>:/data \
+  -e DB_HOST=<yourdbhost> \
+  -e DB_USER=<yourdbuser> \
+  -e DB_PASS=<yourdbpass> \
+  -p 8080:80 \
+  -v /path/to/data:/config \
   --restart unless-stopped \
   ghcr.io/linuxserver/chevereto
 ```
@@ -111,13 +97,13 @@ Container images are configured using parameters passed at runtime (such as thos
 
 | Parameter | Function |
 | :----: | --- |
-| `-p 80` | http gui |
-| `-p 443` | https gui |
+| `-p 80` | will map the container's port 80 to port 8080 on the host |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
-| `-e TZ=<TZ>` | Timezone (i.e., America/New_York) |
-| `-v /config` | config directory volume mapping |
-| `-v /data` | data directory volume mapping |
+| `-e DB_HOST=<yourdbhost>` | for specifying the database host |
+| `-e DB_USER=<yourdbuser>` | for specifying the database user |
+| `-e DB_PASS=<yourdbpass>` | for specifying the database password |
+| `-v /config` | this will store any uploaded data on the docker host |
 
 ## Environment variables from files (Docker secrets)
 

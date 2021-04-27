@@ -18,16 +18,56 @@ available_architectures:
 param_container_name: "{{ project_name }}"
 param_usage_include_vols: true
 param_volumes:
-  - { vol_path: "/config", vol_host_path: "<path to config on host>", desc: "config directory volume mapping" }
-  - { vol_path: "/data", vol_host_path: "<path to data on host>", desc: "data directory volume mapping" }
+  - { vol_path: "/config", vol_host_path: "/path/to/data", desc: "this will store any uploaded data on the docker host" }
 param_usage_include_env: true
 param_env_vars:
-  - { env_var: "TZ", env_value: "<TZ>", desc: "Timezone (i.e., America/New_York)" }
+  - { env_var: "DB_HOST", env_value: "<yourdbhost>", desc: "for specifying the database host" }
+  - { env_var: "DB_USER", env_value: "<yourdbuser>", desc: "for specifying the database user" }
+  - { env_var: "DB_PASS", env_value: "<yourdbpass>", desc: "for specifying the database password" }
 
 param_usage_include_ports: true
 param_ports:
-  - { external_port: "80", internal_port: "80", port_desc: "http gui" }
-  - { external_port: "443", internal_port: "443", port_desc: "https gui" }
+  - { external_port: "8080", internal_port: "80", port_desc: "will map the container's port 80 to port 8080 on the host" }
+
+opt_param_usage_include_env: false
+opt_param_env_vars:
+custom_compose: |
+  ---
+  version: "2.1"
+services:
+  chevereto:
+    image: ghcr.io/linuxserver/chevereto
+    container_name: chevereto
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=<TZ>
+    volumes:
+      - /opt/appdata/chevereto/config:/config
+      - /opt/appdata/chevereto/data:/data
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    depends_on:
+      - DB_HOST
+  DB_HOST:
+    image: ghcr.io/linuxserver/mariadb
+    container_name: chev_db
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=<chevrootpasswd>
+      - TZ=<TZ>
+      - MYSQL_DATABASE=chev
+      - DB_USER=chevuser
+      - DB_PASS=<chevrpasswd>
+    volumes:
+      - /opt/appdata/chevereto/db/data:/config
+    restart: unless-stopped
+
+## Support Info
+
 
 # application setup block
 app_setup_block_enabled: true

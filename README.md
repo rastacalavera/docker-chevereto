@@ -72,6 +72,37 @@ Compatible with docker-compose v2 schemas.
 ```yaml
 ---
 version: "2.1"
+services:
+   chevereto:
+     image: ghcr.io/linuxserver/chevereto
+     container_name: chevereto
+     environment:
+       - PUID=1000
+       - PGID=1000
+       - TZ=<TZ>
+     volumes:
+       - /opt/appdata/chevereto/config:/config
+       - /opt/appdata/chevereto/data:/data
+     ports:
+       - 80:80
+       - 443:443
+     restart: unless-stopped
+     depends_on:
+       - DB_HOST
+   DB_HOST:
+     image: ghcr.io/linuxserver/mariadb
+     container_name: chev_db
+     environment:
+       - PUID=1000
+       - PGID=1000
+       - MYSQL_ROOT_PASSWORD=<chevrootpasswd>
+       - TZ=<TZ>
+       - MYSQL_DATABASE=chev
+       - DB_USER=chevuser
+       - DB_PASS=<chevrpasswd>
+     volumes:
+       - /opt/appdata/chevereto/db/data:/config
+     restart: unless-stopped
 
 ```
 
